@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Matematika testi</title>
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--tx:#1b1f2a;--ac:#2f6fed;--bd:#dfe3ec;--rd:#d9304f}
+@media (prefers-color-scheme:dark){:root{--bg:#14161c;--card:#1d2029;--tx:#e8eaf0;--ac:#6b9bff;--bd:#2d3240;--rd:#ff6b84}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:17px/1.5 Georgia,'Times New Roman',serif;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.wrap{max-width:760px;margin:0 auto;padding-bottom:40px}
+#bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--bd);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-family:system-ui,sans-serif;margin:0 -12px 14px}
+#timer{font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+#timer.low{color:var(--rd)}
+.q{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px}
+.q h3{margin:0 0 8px;font:700 15px system-ui,sans-serif;color:var(--ac)}
+.stem{margin-bottom:10px;overflow-x:auto}
+.expr{text-align:center;margin:10px 0;overflow-x:auto;white-space:nowrap}
+label{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;margin:6px 0;cursor:pointer}
+label:has(input:checked){border-color:var(--ac);background:rgba(47,111,237,.12)}
+input{accent-color:var(--ac);width:18px;height:18px}
+.f{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 3px;font-size:.92em;line-height:1.25}
+.f>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+.f>span:last-child{padding:0 3px}
+.sm{font-size:.8em}
+button{font:600 17px system-ui,sans-serif;border:0;border-radius:10px;padding:13px 20px;background:var(--ac);color:#fff;cursor:pointer;width:100%}
+button.end{background:var(--rd);margin-top:8px}
+.msg{text-align:center;margin-top:20vh;font-family:system-ui,sans-serif}
+.msg h1{font-size:24px}
+.msg .big{font-size:44px;font-weight:700;color:var(--ac)}
+#shield{display:none;position:fixed;inset:0;background:#000;color:#fff;z-index:99;align-items:center;justify-content:center;text-align:center;padding:30px;font-family:system-ui,sans-serif}
+@media print{body{display:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="shield">Test oynasidan chiqmang! Qoidabuzarlik qayd etildi.</div>
+<script>
+(function(){
+var KEY='mt_done_v1', TOTAL=3600, MAXV=3;
+var app=document.getElementById('app'), shield=document.getElementById('shield');
+function F(n,d,c){return '<span class="f'+(c?' sm':'')+'"><span>'+n+'</span><span>'+d+'</span></span>'}
+function S(x){return '<sup>'+x+'</sup>'}
+function used(){try{return localStorage.getItem(KEY)}catch(e){return null}}
+function mark(){try{localStorage.setItem(KEY,'1')}catch(e){}}
+
+var Q=[
+{s:'a, b, c – turli raqamlar bo\u2018lsa, 100a + 10b + c ning eng katta qiymatini toping.',o:['897','987','999','988'],k:1},
+{s:'Hisoblang:',e:F('EKUK(12; 6) + EKUB(6; 12)','&radic;<span style="border-top:1.5px solid">EKUK(12; 3) &middot; EKUB(3; 12)</span>'),o:['3','9','6','1'],k:0},
+{s:'Hisoblang:',e:'4,(36) : 3,1(9) + '+F('1','3'+F('1','7',1)),o:[F(35,22),'1'+F(15,22),F(17,35),'2'+F(5,22)],k:1},
+{s:'Hisoblang:',e:F(18,65)+' &middot; ('+F(41,18)+' &minus; '+F(17,36)+') + '+F(7,6)+' + ('+F(4,7)+' + '+F(5,49)+') : '+F(99,49),o:[F(16,3),'6','2',F(5,6)],k:2},
+{s:'Soddalashtiring:',e:F('x'+S(F(3,5,1))+'y'+S('&minus;2'),'x'+S('&minus;'+F(1,2,1))+'y'+S(F(7,3,1))),o:['x'+S(F(11,10,1))+'y'+S(F(13,3,1)),'x'+S(F(11,10,1))+'y'+S('&minus;'+F(13,3,1)),'x'+S(F(11,10,1))+'y'+S(F(11,3,1)),'x'+S(F(11,10,1))+'y'+S('&minus;'+F(11,3,1))],k:1},
+{s:'Hisoblang:',e:F('(2'+S(3)+')'+S(3)+' &middot; (5'+S(4)+')'+S(2),'10'+S(6))+' &minus; '+F('8'+S(2)+' &middot; (5'+S(2)+')'+S(3),'10'+S(6)),o:['199','999','0','&minus;1'],k:0},
+{s:'Ifodani soddalashtiring:',e:F('a','a'+S(2)+' + b'+S(2))+' &minus; '+F('b(a &minus; b)'+S(2),'a'+S(4)+' &minus; b'+S(4)),o:[F(1,'a+b'),F(1,'a&minus;b'),F(1,'(a+b)'+S(2)),F(1,'(a&minus;b)'+S(2))],k:0},
+{s:'Ifodani soddalashtiring:',e:F('a'+S(2)+' + ab + b'+S(2),'a + b')+' &minus; '+F('a'+S(2)+' &minus; ab + b'+S(2),'b &minus; a'),o:['2a','2b',F('2a'+S(3),'a'+S(2)+'&minus;b'+S(2)),F('2b'+S(3),'a'+S(2)+'&minus;b'+S(2))],k:2},
+{s:'Ifodani soddalashtiring:',e:F('a'+S('&minus;6')+' + a'+S('&minus;4')+' + a'+S('&minus;2'),'a'+S(6)+' + a'+S(4)+' + a'+S(2)),o:['a'+S('&minus;8'),'a'+S('&minus;6'),'a'+S(6),'a'+S(8)],k:0},
+{s:'(x'+S(2)+' + ax + b)(x + 3) = x'+S(3)+' + 4x'+S(2)+' + 5x + 6 tenglik ayniyat bo\u2018lsa, a va b ning qiymatini toping.',o:['a = 1; b = 2','a = 2; b = 1','a = 1; b = 3','a = 2; b = 3'],k:0}
+];
+var SHEET_URL='https://script.google.com/macros/s/AKfycbwJ3O9awvR3lMG2W5DeE7e8j1irSwO77VXUVmnR5Osl4yv7eU-unP0MDulsKDmEIelsMA/exec';
+function send(p){if(SHEET_URL.indexOf('http')!==0)return Promise.resolve();return fetch(SHEET_URL,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)})}
+var hook={boot:function(go){go()},start:function(p){send(p).catch(function(){})},end:send};
+var L='ABCD', ans=[], left=TOTAL, tid=null, viol=0, done=false;
+
+function msgPage(h,p){app.innerHTML='<div class="msg"><h1>'+h+'</h1><p>'+p+'</p></div>'}
+
+var NAME='';
+function blocked(){msgPage('Test yakunlangan','Siz bu testga avval kirgansiz. Qayta kirish mumkin emas.')}
+function intro(){
+app.innerHTML='<div class="msg"><h1>Matematika testi</h1><p>10 ta savol &middot; 1 soat<br>Testga faqat bir marta kirish mumkin. Sahifani yangilasangiz yoki yopsangiz, test tugagan hisoblanadi.<br>Boshqa oynaga o\u2018tish ham qoidabuzarlik hisoblanadi (3 martadan keyin test avtomatik tugaydi).</p><input id="nm" placeholder="Ism va familiyangiz" autocomplete="off" style="width:100%;padding:13px;font-size:17px;border:1px solid var(--bd);border-radius:10px;margin:8px 0 14px;background:var(--card);color:var(--tx);-webkit-user-select:text;user-select:text"><button id="go">Testni boshlash</button></div>';
+document.getElementById('go').onclick=function(){
+  var v=document.getElementById('nm').value.trim();
+  if(v.split(/\s+/).length<2||v.length<5){alert('Ism va familiyangizni to\u2018liq kiriting.');return}
+  NAME=v;start()};
+}
+if(used()){blocked();return}
+hook.boot(intro,blocked);
+
+function fmt(t){var m=Math.floor(t/60),s=t%60;return (m<10?'0':'')+m+':'+(s<10?'0':'')+s}
+
+function start(){
+  mark();hook.start({name:NAME,status:'boshladi'});
+  var h='<div id="bar"><span>Savollar: <b id="cnt">0</b>/10</span><span id="timer">'+fmt(left)+'</span></div>';
+  Q.forEach(function(q,i){
+    h+='<div class="q"><h3>'+(i+1)+'-savol</h3><div class="stem">'+q.s+'</div>'+(q.e?'<div class="expr">'+q.e+'</div>':'');
+    q.o.forEach(function(o,j){h+='<label><input type="radio" name="q'+i+'" value="'+j+'"><span>'+L[j]+') '+o+'</span></label>'});
+    h+='</div>';
+  });
+  h+='<button class="end" id="fin">Testni tugatish</button>';
+  app.innerHTML=h;
+  app.addEventListener('change',function(e){
+    var m=/^q(\d+)$/.exec(e.target.name);if(m){ans[+m[1]]=+e.target.value;
+      document.getElementById('cnt').textContent=ans.filter(function(x){return x!==undefined}).length}
+  });
+  document.getElementById('fin').onclick=function(){
+    var n=ans.filter(function(x){return x!==undefined}).length;
+    if(confirm(n<10?'Javob berilmagan savollar: '+(10-n)+'. Testni tugatasizmi?':'Testni tugatasizmi?'))finish('')
+  };
+  tid=setInterval(function(){
+    left--;var t=document.getElementById('timer');
+    if(t){t.textContent=fmt(left);if(left<=300)t.className='low'}
+    if(left<=0)finish('Vaqt tugadi.')
+  },1000);
+}
+
+function finish(note){
+  if(done)return;done=true;clearInterval(tid);shield.style.display='none';
+  var c=0,a=[];Q.forEach(function(q,i){if(ans[i]===q.k)c++;a.push((i+1)+(ans[i]===undefined?'-':L[ans[i]]))});
+  var p={name:NAME,status:'tugatdi',score:c,answers:a.join(' '),violations:viol,spent:Math.round((TOTAL-left)/60*10)/10+' daq',note:note||''};
+  app.innerHTML='<div class="msg"><h1>Test yakunlandi</h1>'+(note?'<p>'+note+'</p>':'')+'<div class="big">'+c+' / 10</div><p>To\u2018g\u2018ri javoblar soni</p><p id="st">Natija yuborilmoqda...</p></div>';
+  window.scrollTo(0,0);
+  (function send(){
+    Promise.resolve(hook.end(p)).then(function(){document.getElementById('st').textContent='\u2713 Natijangiz o\u2018qituvchiga yuborildi.'},
+    function(){var st=document.getElementById('st');st.innerHTML='Natija yuborilmadi. Internetni tekshiring.<br><br><button id="rt">Qayta yuborish</button>';document.getElementById('rt').onclick=function(){st.textContent='Yuborilmoqda...';send()}});
+  })();
+}
+
+function violation(){
+  if(done||!tid)return;viol++;
+  if(viol>=MAXV)finish('Qoidabuzarliklar ko\u2018p bo\u2018lgani uchun test tugatildi.');
+}
+function hide(){if(tid&&!done){shield.style.display='flex'}}
+function show(){shield.style.display='none'}
+document.addEventListener('visibilitychange',function(){if(document.hidden){violation();hide()}else show()});
+window.addEventListener('blur',function(){hide()});
+window.addEventListener('focus',function(){show()});
+['contextmenu','copy','cut','paste','dragstart','selectstart'].forEach(function(ev){document.addEventListener(ev,function(e){e.preventDefault()})});
+document.addEventListener('keydown',function(e){
+  var k=(e.key||'').toLowerCase();
+  if(k==='printscreen'||k==='meta'||k==='f12'||k==='f11'||(e.ctrlKey||e.metaKey)&&['p','s','c','u','a','x'].indexOf(k)>-1||(e.ctrlKey||e.metaKey)&&e.shiftKey&&['i','j','c','s'].indexOf(k)>-1){
+    e.preventDefault();
+    if(k==='printscreen'){try{navigator.clipboard.writeText('')}catch(x){}}
+    if(tid&&!done&&k!=='meta')violation();
+  }
+});
+document.addEventListener('keyup',function(e){if(e.key==='PrintScreen'){try{navigator.clipboard.writeText('')}catch(x){}}});
+})();
+</script>
+</body>
+</html>
